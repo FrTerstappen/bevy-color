@@ -1,0 +1,28 @@
+// cSpell Settings
+{
+    // Version of the setting file.  Always 0.2
+    "version": "0.2",
+    "language": "en",
+    "import": [],
+    "dictionaries": [],
+    "words": [
+        "hwba",
+        "laba",
+        "lcha",
+        "LINEARRGB",
+        "LINEARRGBA",
+        "lrgb",
+        "oklab",
+        "oklaba",
+        "oklch",
+        "oklcha",
+        "Srgba",
+        "SRGBAU",
+        "SRGBU",
+        "xyza"
+    ],
+    // flagWords - list of words to be always considered incorrect
+    // This is useful for offensive words and common spelling errors.
+    "flagWords": [],
+    "ignorePaths": []
+}
