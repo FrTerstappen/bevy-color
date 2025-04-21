@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Namespace matching now supports direct `bevy_color` usage
 
+### Fixed
+
+- Conversions now accounts for a difference in value range between bevy and the internally used color library
+
 ## [0.1.0] - 2025-04-20
 
 ### Added
