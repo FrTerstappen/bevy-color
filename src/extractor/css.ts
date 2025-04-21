@@ -160,7 +160,7 @@ export function getCssRegExps(): RegExp[] {
     const names = recordKeys(CSS_COLORS);
     const nameRegexPart = names.join("|");
 
-    const nameSpacePart = `${nameSpaceBaseRegExp}(?:palettes::)?(?:css::)`;
+    const nameSpacePart = `${nameSpaceBaseRegExp}(?:palettes::)?(?:css::)?`;
 
     const regexString = `${nameSpacePart}(${nameRegexPart})`;
     const regex = new RegExp(regexString, "g");
