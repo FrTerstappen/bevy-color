@@ -7,3 +7,4 @@ edition = "2024"
 bevy = { version = "0.15.3", default-features = false, features = [
     "bevy_color",
 ] }
+bevy_color = { version = "0.15.3", default-features = false }
