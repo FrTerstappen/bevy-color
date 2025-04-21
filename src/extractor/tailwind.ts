@@ -1,5 +1,6 @@
-import { Color } from "vscode";
 import { nameSpaceBaseRegExp } from "./utility";
+import { ExtractedColor } from "./extractor";
+import { ColorSpace } from "../colorSpace";
 
 const TAILWIND_COLOR_NAMES = [
     "AMBER",
@@ -344,17 +345,20 @@ export function getTailWindRegExps(): RegExp[] {
     return [regex];
 }
 
-export function extractTailWindColor(match: RegExpExecArray): Color | undefined {
+export function extractTailWindColor(match: RegExpExecArray): ExtractedColor | undefined {
     const name = match[1];
     const step = match[2];
     const values = TAILWIND_COLORS[name][step];
 
-    const color = new Color(
-        values[0],
-        values[1],
-        values[2],
-        1.0
-    );
+    const extractedColor: ExtractedColor = {
+        colorSpace: ColorSpace.Srgb,
+        coordinate: {
+            first: values[0],
+            second: values[1],
+            third: values[2],
+        },
+        alpha: 1.0,
 
-    return color;
+    };
+    return extractedColor;
 }
