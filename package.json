@@ -2,7 +2,7 @@
     "name": "bevy-color",
     "displayName": "Bevy Color",
     "description": "Visualize colors inline in rust code using bevy",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "publisher": "frterstappen",
     "repository": {
         "url": "https://github.com/FrTerstappen/bevy-color"
