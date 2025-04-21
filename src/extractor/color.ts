@@ -1,5 +1,5 @@
 import { Color } from "vscode";
-import space from "color-space";
+import ColorJS from "colorjs.io";
 import { nameSpaceBaseRegExp, rustFloatRegExp, rustU8RegExp } from "./utility";
 
 export function getColorRegExps(): RegExp[] {
@@ -14,91 +14,68 @@ export function getColorRegExps(): RegExp[] {
     return [floatRegExp, u8RegExp];
 }
 
-// Color::Srgba(red: f32, green: f32, blue: f32)
-// Color::Srgb (red: f32, green: f32, blue: f32, alpha: f32)
 function extractSrgbaColor(red: number, green: number, blue: number, alpha: number | undefined): Color | undefined {
     const color = new Color(red, green, blue, alpha ?? 1.0);
     return color;
 }
 
-// Color::SrgbaU8(red: u8, green: u8, blue: u8)
-// Color::SrgbaU (red: u8, green: u8, blue: u8, alpha: u8)
 function extractSrgbaU8Color(red: number, green: number, blue: number, alpha: number | undefined): Color | undefined {
-    return extractSrgbaColor(red / 255, green / 255, blue / 255, alpha ? alpha / 255 : undefined);
+    return extractSrgbaColor(red / 255.0, green / 255.0, blue / 255.0, alpha ? alpha / 255.0 : undefined);
 }
 
-// Color::LinearRgba(red: f32, green: f32, blue: f32)
-// Color::LinearRgb (red: f32, green: f32, blue: f32, alpha: f32)
 function extractLinearRgbaColor(red: number, green: number, blue: number, alpha: number | undefined): Color | undefined {
-    const result = space.lrgb.rgb([red, green, blue]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("srgb-linear", [red, green, blue]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Hsla(hue: f32, saturation: f32, lightness: f32)
-// Color::Hsl (hue: f32, saturation: f32, lightness: f32, alpha: f32)
 function extractHslaColor(hue: number, saturation: number, lightness: number, alpha: number | undefined): Color | undefined {
-    const result = space.hsl.rgb([hue, saturation, lightness]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("hsl", [hue, saturation, lightness]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Hsva(hue: f32, saturation: f32, value: f32)
-// Color::Hsv (hue: f32, saturation: f32, value: f32, alpha: f32)
 function extractHsvaColor(hue: number, saturation: number, value: number, alpha: number | undefined): Color | undefined {
-    const result = space.hsv.rgb([hue, saturation, value]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("hsv", [hue, saturation, value]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Hwba(hue: f32, whiteness: f32, blackness: f32)
-// Color::Hwb (hue: f32, whiteness: f32, blackness: f32, alpha: f32)
 function extractHwbaColor(hue: number, whiteness: number, blackness: number, alpha: number | undefined): Color | undefined {
-    const result = space.hwb.rgb([hue, whiteness, blackness]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("hwb", [hue, whiteness, blackness]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Laba(lightness: f32, a: f32, b: f32)
-// Color::Lab (lightness: f32, a: f32, b: f32, alpha: f32)
 function extractLabaColor(lightness: number, a: number, b: number, alpha: number | undefined): Color | undefined {
-    const xyz = space.lab.xyz([lightness, a, b]);
-    const result = space.xyz.rgb([xyz[0], xyz[1], xyz[2]]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("lab", [lightness, a, b]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Lcha(lightness: f32, chroma: f32, hue: f32)
-// Color::Lch (lightness: f32, chroma: f32, hue: f32, alpha: f32)
 function extractLchaColor(lightness: number, chroma: number, hue: number, alpha: number | undefined): Color | undefined {
-    const xyz = space.lchab.xyz([lightness, chroma, hue]);
-    const result = space.xyz.rgb([xyz[0], xyz[1], xyz[2]]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("lch", [lightness, chroma, hue]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Oklaba(lightness: f32, a: f32, b: f32)
-// Color::Oklab (lightness: f32, a: f32, b: f32, alpha: f32)
 function extractOklabaColor(lightness: number, a: number, b: number, alpha: number | undefined): Color | undefined {
-    const xyz = space.oklab.xyz([lightness, a, b]);
-    const result = space.xyz.rgb([xyz[0], xyz[1], xyz[2]]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("oklab", [lightness, a, b]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Oklcha(lightness: f32, chroma: f32, hue: f32)
-// Color::Oklch (lightness: f32, chroma: f32, hue: f32, alpha: f32)
-function extractOklchaColor(_lightness: number, _chroma: number, _hue: number, _alpha: number | undefined): Color | undefined {
-    // TODO
-    return undefined;
+
+function extractOklchaColor(lightness: number, chroma: number, hue: number, alpha: number | undefined): Color | undefined {
+    const color = new ColorJS("oklch", [lightness, chroma, hue]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
-// Color::Xyza(x: f32, y: f32, z: f32)
-// Color::Xyz (x: f32, y: f32, z: f32, alpha: f32)
 function extractXyzaColor(x: number, y: number, z: number, alpha: number | undefined): Color | undefined {
-    const result = space.xyz.rgb([x, y, z]);
-    const color = new Color(result[0], result[1], result[2], alpha ?? 1.0);
-    return color;
+    const color = new ColorJS("xyz", [x, y, z]);
+    const srgb = color.to("srgb");
+    return new Color(srgb.coords[0], srgb.coords[1], srgb.coords[2], alpha ?? 1.0);
 }
 
 export function extractColor(match: RegExpExecArray): Color | undefined {
