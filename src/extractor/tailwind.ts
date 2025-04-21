@@ -1,4 +1,5 @@
 import { Color } from "vscode";
+import { nameSpaceBaseRegExp } from "./utility";
 
 const TAILWIND_COLOR_NAMES = [
     "AMBER",
@@ -335,7 +336,7 @@ export function getTailWindRegExps(): RegExp[] {
     const steps = TAILWIND_STEP_NAMES;
     const stepsRegexPart = steps.join("|");
 
-    const nameSpacePart = "(?:bevy::)?(?:color::)?(?:palettes::)?(?:tailwind::)?";
+    const nameSpacePart = `${nameSpaceBaseRegExp}(?:palettes::)?(?:tailwind::)?`;
 
     const regexString = `${nameSpacePart}(${nameRegexPart})_(${stepsRegexPart})`;
     const regex = new RegExp(regexString, "g");

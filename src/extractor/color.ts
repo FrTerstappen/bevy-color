@@ -1,16 +1,14 @@
 import { Color } from "vscode";
 import space from "color-space";
-import { rustFloatRegExp, rustU8RegExp } from "./utility";
+import { nameSpaceBaseRegExp, rustFloatRegExp, rustU8RegExp } from "./utility";
 
 export function getColorRegExps(): RegExp[] {
-    const nameSpacePart = "(?:bevy::)?(?:color::)?";
-
     const floatTypePart = "(srgba|srgb|linear_rgba|linear_rgb|hsla|hsl|hsva|hsv|hwba|hwb|laba|lab|lcha|lch|oklaba|oklab|oklcha|oklch|xyza|xyz)";
-    const floatRegExpString = `${nameSpacePart}Color::${floatTypePart}\\(${rustFloatRegExp},${rustFloatRegExp},${rustFloatRegExp}(?:,${rustFloatRegExp})?\\)`;
+    const floatRegExpString = `${nameSpaceBaseRegExp}Color::${floatTypePart}\\(${rustFloatRegExp},${rustFloatRegExp},${rustFloatRegExp}(?:,${rustFloatRegExp})?\\)`;
     const floatRegExp = new RegExp(floatRegExpString, "g");
 
     const u8TypePart = "(srgba_u8|srgb_u8)";
-    const u8RegExpString = `${nameSpacePart}Color::${u8TypePart}\\(${rustU8RegExp},${rustU8RegExp},${rustU8RegExp}(?:,${rustU8RegExp})?\\)`;
+    const u8RegExpString = `${nameSpaceBaseRegExp}Color::${u8TypePart}\\(${rustU8RegExp},${rustU8RegExp},${rustU8RegExp}(?:,${rustU8RegExp})?\\)`;
     const u8RegExp = new RegExp(u8RegExpString, "g");
 
     return [floatRegExp, u8RegExp];

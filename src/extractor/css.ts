@@ -1,4 +1,5 @@
 import { Color } from "vscode";
+import { nameSpaceBaseRegExp } from "./utility";
 
 const CSS_COLORS: Record<string, [number, number, number, number]> = {
     "AQUA": [0.0, 1.0, 1.0, 1.0],
@@ -158,7 +159,7 @@ export function getCssRegExps(): RegExp[] {
     const names = recordKeys(CSS_COLORS);
     const nameRegexPart = names.join("|");
 
-    const nameSpacePart = "(?:bevy::)?(?:color::)?(?:palettes::)?(?:css::)?";
+    const nameSpacePart = `${nameSpaceBaseRegExp}(?:palettes::)?(?:css::)`;
 
     const regexString = `${nameSpacePart}(${nameRegexPart})`;
     const regex = new RegExp(regexString, "g");

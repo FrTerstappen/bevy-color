@@ -48,6 +48,7 @@ export function extractColorInformation(line: TextLine, colorInformation: ColorI
     }
 }
 
+export const nameSpaceBaseRegExp = "(?:(?:bevy_color::)|(?:bevy::)?(?:color::))?";
 export const rustFloatRegExp = "\\s*(-?(?:\\d(?:\\d|_\\d{3})*)\\.(?:\\d{3}_)*\\d*)(?:_f(?:16|32|64|128))?\\s*";
 export const rustU8RegExp = "\\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:_u8)?\\s*";
 
