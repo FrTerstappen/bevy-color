@@ -36,7 +36,7 @@ export function extractColorInformation(line: TextLine, colorInformation: ColorI
 
             // Unsupported or broken color
             if (color === undefined) {
-                console.error("Unable to extract color", match);
+                console.error("Did not extract color from match", match);
                 continue;
             }
 

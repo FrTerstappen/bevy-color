@@ -32,7 +32,11 @@ class ColorProvider implements DocumentColorProvider {
                 continue;
             }
 
-            this.extractColors(line, colorInformation, token);
+            try {
+                this.extractColors(line, colorInformation, token);
+            } catch (error) {
+                console.error("Failed to extract color from line");
+            }
         }
 
         return colorInformation;
