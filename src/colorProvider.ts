@@ -16,9 +16,6 @@ import { extractTailWindColor, getTailWindRegExps } from "./extractor/tailwind";
 import { extractCssColor, getCssRegExps } from "./extractor/css";
 
 class ColorProvider implements DocumentColorProvider {
-
-    constructor() { }
-
     provideDocumentColors(
         document: TextDocument,
         token: CancellationToken,
@@ -84,7 +81,6 @@ class ColorProvider implements DocumentColorProvider {
 
             return [colorPresentation];
         } else {
-
             const a = formatNumber(color.alpha);
             const colorLabel = `Color::srgba(${r}, ${g}, ${b}, ${a})`;
             const colorPresentation = new ColorPresentation(colorLabel);
