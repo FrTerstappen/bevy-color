@@ -1,6 +1,5 @@
 export enum ColorSpace {
     Srgb,
-    SrgbU8,
     LinearRgb,
     Hsl,
     Hsv,
@@ -12,69 +11,53 @@ export enum ColorSpace {
     Xyz,
 }
 
-export function fromBevyName(name: string): ColorSpace | undefined {
-    switch (name) {
+export function fromBevyName(name: string | undefined): ColorSpace | undefined {
+    const normalizedName = name?.toUpperCase().replace("_", "");
+
+    switch (normalizedName) {
         case "SRGB":
-        case "SRGBA":
+        case "SRGBA": {
             return ColorSpace.Srgb;
-        case "SRGBU8":
-        case "SRGBAU8":
-            return ColorSpace.SrgbU8;
+        }
+        case "COLOR": // Extra for associated colors
         case "LINEARRGB":
-        case "LINEARRGBA":
+        case "LINEARRGBA": {
             return ColorSpace.LinearRgb;
+        }
         case "HSL":
-        case "HSLA":
+        case "HSLA": {
             return ColorSpace.Hsl;
+        }
         case "HSV":
-        case "HSVA":
+        case "HSVA": {
             return ColorSpace.Hsv;
+        }
         case "HWB":
-        case "HWBA":
+        case "HWBA": {
             return ColorSpace.Hwb;
+        }
         case "LAB":
-        case "LABA":
+        case "LABA": {
             return ColorSpace.Lab;
+        }
         case "LCH":
-        case "LCHA":
+        case "LCHA": {
             return ColorSpace.Lch;
+        }
         case "OKLAB":
-        case "OKLABA":
+        case "OKLABA": {
             return ColorSpace.OkLab;
+        }
         case "OKLCH":
-        case "OKLCHA":
+        case "OKLCHA": {
             return ColorSpace.OkLch;
+        }
         case "XYZ":
-        case "XYZA":
+        case "XYZA": {
             return ColorSpace.Xyz;
+        }
     }
 
-    console.error("Unrecognized bevy color name", name);
+    console.error("Unrecognized bevy color name", name, normalizedName);
     return undefined;
-}
-
-export function colorJsSpaceName(space: ColorSpace): string {
-    switch (space) {
-        case ColorSpace.Srgb:
-        case ColorSpace.SrgbU8:
-            return "srgb";
-        case ColorSpace.LinearRgb:
-            return "srgb-linear";
-        case ColorSpace.Hsl:
-            return "hsl";
-        case ColorSpace.Hsv:
-            return "hsv";
-        case ColorSpace.Hwb:
-            return "hwb";
-        case ColorSpace.Lab:
-            return "lab";
-        case ColorSpace.Lch:
-            return "lch";
-        case ColorSpace.OkLab:
-            return "oklab";
-        case ColorSpace.OkLch:
-            return "oklch";
-        case ColorSpace.Xyz:
-            return "xyz";
-    }
 }

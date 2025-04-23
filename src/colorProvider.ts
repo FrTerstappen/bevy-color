@@ -7,58 +7,78 @@ import {
     ColorInformation,
     Range,
     CancellationToken,
+    DiagnosticCollection,
 } from "vscode";
-import { formatNumber } from "./extractor/utility";
-import { extractColors } from "./extractor/extractor";
+import { ColorPresenter } from "./colorPresenter";
+import { DocumentProcessor } from "./documentProcessor";
+import { RangeProcessor } from "./rangeProcessor";
+import { ColorExtractorBevyTailwind } from "./extractor/colorExtractorBevyTailwind";
+import { ColorExtractorBevyCss } from "./extractor/colorExtractorBevyCss";
+import { ColorExtractorBevyColor } from "./extractor/colorExtractorBevyColor";
+import { ColorExtractorBevyAssociated } from "./extractor/colorExtractorBevyAssociated";
+import { ColorExtractorBevyColorUnsigned } from "./extractor/colorExtractorBevyColorUnsigned";
+import { ColorExtractorBevyColorHex } from "./extractor/colorExtractorBevyColorHex";
 
 class ColorProvider implements DocumentColorProvider {
+    private documentProcessor: DocumentProcessor;
+    private colorPresenter: ColorPresenter;
+
+    constructor(diagnosticCollection: DiagnosticCollection) {
+        const rangeProcessor = new RangeProcessor();
+
+        const colorExtractorBevyAssociated = new ColorExtractorBevyAssociated();
+        rangeProcessor.addColorExtractor(colorExtractorBevyAssociated);
+
+        const colorExtractorBevyColor = new ColorExtractorBevyColor();
+        rangeProcessor.addColorExtractor(colorExtractorBevyColor);
+
+        const colorExtractorBevyColorHex = new ColorExtractorBevyColorHex();
+        rangeProcessor.addColorExtractor(colorExtractorBevyColorHex);
+
+        const colorExtractorBevyColorUnsignedColorExtractorBevyColorUnsigned =
+            new ColorExtractorBevyColorUnsigned();
+        rangeProcessor.addColorExtractor(
+            colorExtractorBevyColorUnsignedColorExtractorBevyColorUnsigned
+        );
+
+        const colorExtractorBevyTailwind = new ColorExtractorBevyTailwind();
+        rangeProcessor.addColorExtractor(colorExtractorBevyTailwind);
+
+        const colorExtractorBevyCss = new ColorExtractorBevyCss();
+        rangeProcessor.addColorExtractor(colorExtractorBevyCss);
+
+        this.documentProcessor = new DocumentProcessor(
+            diagnosticCollection,
+            rangeProcessor
+        );
+
+        this.colorPresenter = new ColorPresenter(rangeProcessor);
+    }
+
     provideDocumentColors(
         document: TextDocument,
-        token: CancellationToken,
+        token: CancellationToken
     ): ProviderResult<ColorInformation[]> {
-        const colorInformation: ColorInformation[] = [];
-
-        for (let lineNumber = 0; lineNumber < document.lineCount; lineNumber++) {
-            if (token.isCancellationRequested) {
-                return colorInformation;
-            }
-
-            const line = document.lineAt(lineNumber);
-            if (line.isEmptyOrWhitespace) {
-                continue;
-            }
-
-            try {
-                extractColors(line, colorInformation, token);
-            } catch (error) {
-                console.error("Failed to extract color from line");
-            }
-        }
+        const colorInformation = this.documentProcessor.process(
+            document,
+            token
+        );
 
         return colorInformation;
     }
 
     provideColorPresentations(
         color: Color,
-        _context: { document: TextDocument, range: Range },
-        _token: CancellationToken
+        context: { document: TextDocument; range: Range },
+        token: CancellationToken
     ): ProviderResult<ColorPresentation[]> {
-        const r = formatNumber(color.red);
-        const g = formatNumber(color.green);
-        const b = formatNumber(color.blue);
+        const colorPresentations = this.colorPresenter.buildColorPresentations(
+            color,
+            context,
+            token
+        );
 
-        if (color.alpha === 1.0) {
-            const colorLabel = `Color::srgb(${r}, ${g}, ${b})`;
-            const colorPresentation = new ColorPresentation(colorLabel);
-
-            return [colorPresentation];
-        } else {
-            const alpha = formatNumber(color.alpha);
-            const colorLabel = `Color::srgba(${r}, ${g}, ${b}, ${alpha})`;
-            const colorPresentation = new ColorPresentation(colorLabel);
-
-            return [colorPresentation];
-        }
+        return colorPresentations;
     }
 }
 

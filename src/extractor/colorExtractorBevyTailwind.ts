@@ -1,6 +1,78 @@
-import { nameSpaceBaseRegExp } from "./utility";
-import { ExtractedColor } from "./extractor";
 import { ColorSpace } from "../colorSpace";
+import { ColorExtractor } from "./colorExtractor";
+import { Range } from "vscode";
+import { ExtractionResult, ExtractionSource } from "./extractionResult";
+import { ExtractedValue } from "./extractedValue";
+import { ExtractedNumber } from "./extractedNumber";
+import { ColorRegExpBuilder } from "./colorRegExpBuilder";
+import { ColorDefinitionBevy } from "../colorDefinitionBevy";
+
+export class ColorExtractorBevyTailwind implements ColorExtractor {
+    buildRegularExpressions(colorRegExpBuilder: ColorRegExpBuilder): RegExp[] {
+        const names = TAILWIND_COLOR_NAMES;
+        const steps = TAILWIND_STEP_NAMES;
+
+        const modulePathParts = ["palettes", "tailwind"];
+        const regExp = colorRegExpBuilder.buildTailwindCapture(
+            modulePathParts,
+            names,
+            steps
+        );
+
+        return [regExp];
+    }
+
+    extract(
+        range: Range,
+        match: RegExpExecArray
+    ): ExtractionResult | undefined {
+        if (match.length !== 4) {
+            console.error("Wrong match length", match);
+            return undefined;
+        }
+
+        const nameSpace = match.at(1) ?? "";
+        const extractedNameSpace = new ExtractedValue<string>(nameSpace);
+
+        const colorSpace = ColorSpace.Srgb;
+        const definition = ColorDefinitionBevy.fromColorSpace(colorSpace);
+        const valueRanges = definition.colorCoordinateRange;
+
+        const extractedColorSpace = new ExtractedValue<ColorSpace>(
+            ColorSpace.Srgb
+        );
+
+        const name = match.at(2);
+        if (!name) {
+            console.log("No name matched");
+            return undefined;
+        }
+
+        const step = match.at(3);
+        if (!step) {
+            console.log("No step matched");
+            return undefined;
+        }
+
+        const values = TAILWIND_COLORS[name][step];
+
+        const r = new ExtractedNumber(values[0], valueRanges.first);
+        const g = new ExtractedNumber(values[1], valueRanges.second);
+        const b = new ExtractedNumber(values[2], valueRanges.third);
+
+        const extraction = new ExtractionResult(
+            ExtractionSource.BevyTailwind,
+            range,
+            extractedNameSpace,
+            extractedColorSpace,
+            r,
+            g,
+            b
+        );
+
+        return extraction;
+    }
+}
 
 const TAILWIND_COLOR_NAMES = [
     "AMBER",
@@ -41,8 +113,11 @@ const TAILWIND_STEP_NAMES = [
     "950",
 ];
 
-const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> = {
-    "AMBER": {
+const TAILWIND_COLORS: Record<
+    string,
+    Record<string, [number, number, number]>
+> = {
+    AMBER: {
         "50": [1.0, 0.9843137, 0.92156863],
         "100": [0.99607843, 0.9529412, 0.78039217],
         "200": [0.99215686, 0.9019608, 0.5411765],
@@ -53,9 +128,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.7058824, 0.3254902, 0.03529412],
         "800": [0.57254905, 0.2509804, 0.05490196],
         "900": [0.47058824, 0.20784314, 0.05882353],
-        "950": [0.27058825, 0.101960786, 0.011764706]
+        "950": [0.27058825, 0.101960786, 0.011764706],
     },
-    "BLUE": {
+    BLUE: {
         "50": [0.9372549, 0.9647059, 1.0],
         "100": [0.85882354, 0.91764706, 0.99607843],
         "200": [0.7490196, 0.85882354, 0.99607843],
@@ -66,9 +141,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.11372549, 0.30588236, 0.84705883],
         "800": [0.11764706, 0.2509804, 0.6862745],
         "900": [0.11764706, 0.22745098, 0.5411765],
-        "950": [0.09019608, 0.14509805, 0.32941177]
+        "950": [0.09019608, 0.14509805, 0.32941177],
     },
-    "CYAN": {
+    CYAN: {
         "50": [0.9254902, 0.99607843, 1.0],
         "100": [0.8117647, 0.98039216, 0.99607843],
         "200": [0.64705884, 0.9529412, 0.9882353],
@@ -79,9 +154,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.05490196, 0.45490196, 0.5647059],
         "800": [0.08235294, 0.36862746, 0.45882353],
         "900": [0.08627451, 0.30588236, 0.3882353],
-        "950": [0.03137255, 0.2, 0.26666668]
+        "950": [0.03137255, 0.2, 0.26666668],
     },
-    "EMERALD": {
+    EMERALD: {
         "50": [0.9254902, 0.99215686, 0.9607843],
         "100": [0.81960785, 0.98039216, 0.8980392],
         "200": [0.654902, 0.9529412, 0.8156863],
@@ -92,9 +167,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.015686275, 0.47058824, 0.34117648],
         "800": [0.023529412, 0.37254903, 0.27450982],
         "900": [0.023529412, 0.30588236, 0.23137255],
-        "950": [0.007843138, 0.17254902, 0.13333334]
+        "950": [0.007843138, 0.17254902, 0.13333334],
     },
-    "FUCHSIA": {
+    FUCHSIA: {
         "50": [0.99215686, 0.95686275, 1.0],
         "100": [0.98039216, 0.9098039, 1.0],
         "200": [0.9607843, 0.8156863, 0.99607843],
@@ -105,9 +180,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.63529414, 0.10980392, 0.6862745],
         "800": [0.5254902, 0.09803922, 0.56078434],
         "900": [0.4392157, 0.101960786, 0.45882353],
-        "950": [0.2901961, 0.015686275, 0.30588236]
+        "950": [0.2901961, 0.015686275, 0.30588236],
     },
-    "GRAY": {
+    GRAY: {
         "50": [0.9764706, 0.98039216, 0.9843137],
         "100": [0.9529412, 0.95686275, 0.9647059],
         "200": [0.8980392, 0.90588236, 0.92156863],
@@ -118,9 +193,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.21568628, 0.25490198, 0.31764707],
         "800": [0.12156863, 0.16078432, 0.21568628],
         "900": [0.06666667, 0.09411765, 0.15294118],
-        "950": [0.011764706, 0.02745098, 0.07058824]
+        "950": [0.011764706, 0.02745098, 0.07058824],
     },
-    "GREEN": {
+    GREEN: {
         "50": [0.9411765, 0.99215686, 0.95686275],
         "100": [0.8627451, 0.9882353, 0.90588236],
         "200": [0.73333335, 0.96862745, 0.8156863],
@@ -131,9 +206,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.08235294, 0.5019608, 0.23921569],
         "800": [0.08627451, 0.39607844, 0.20392157],
         "900": [0.078431375, 0.3254902, 0.1764706],
-        "950": [0.019607844, 0.18039216, 0.08627451]
+        "950": [0.019607844, 0.18039216, 0.08627451],
     },
-    "INDIGO": {
+    INDIGO: {
         "50": [0.93333334, 0.9490196, 1.0],
         "100": [0.8784314, 0.90588236, 1.0],
         "200": [0.78039217, 0.8235294, 0.99607843],
@@ -144,9 +219,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.2627451, 0.21960784, 0.7921569],
         "800": [0.21568628, 0.1882353, 0.6392157],
         "900": [0.19215687, 0.18039216, 0.5058824],
-        "950": [0.11764706, 0.105882354, 0.29411766]
+        "950": [0.11764706, 0.105882354, 0.29411766],
     },
-    "LIME": {
+    LIME: {
         "50": [0.96862745, 0.99607843, 0.90588236],
         "100": [0.9254902, 0.9882353, 0.79607844],
         "200": [0.8509804, 0.9764706, 0.6156863],
@@ -157,9 +232,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.3019608, 0.4862745, 0.05882353],
         "800": [0.24705882, 0.38431373, 0.07058824],
         "900": [0.21176471, 0.3254902, 0.078431375],
-        "950": [0.101960786, 0.18039216, 0.019607844]
+        "950": [0.101960786, 0.18039216, 0.019607844],
     },
-    "NEUTRAL": {
+    NEUTRAL: {
         "50": [0.98039216, 0.98039216, 0.98039216],
         "100": [0.9607843, 0.9607843, 0.9607843],
         "200": [0.8980392, 0.8980392, 0.8980392],
@@ -170,9 +245,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.2509804, 0.2509804, 0.2509804],
         "800": [0.14901961, 0.14901961, 0.14901961],
         "900": [0.09019608, 0.09019608, 0.09019608],
-        "950": [0.039215688, 0.039215688, 0.039215688]
+        "950": [0.039215688, 0.039215688, 0.039215688],
     },
-    "ORANGE": {
+    ORANGE: {
         "50": [1.0, 0.96862745, 0.92941177],
         "100": [1.0, 0.92941177, 0.8352941],
         "200": [0.99607843, 0.84313726, 0.6666667],
@@ -183,9 +258,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.7607843, 0.25490198, 0.047058824],
         "800": [0.6039216, 0.20392157, 0.07058824],
         "900": [0.4862745, 0.1764706, 0.07058824],
-        "950": [0.2627451, 0.078431375, 0.02745098]
+        "950": [0.2627451, 0.078431375, 0.02745098],
     },
-    "PINK": {
+    PINK: {
         "50": [0.99215686, 0.9490196, 0.972549],
         "100": [0.9882353, 0.90588236, 0.9529412],
         "200": [0.9843137, 0.8117647, 0.9098039],
@@ -196,9 +271,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.74509805, 0.09411765, 0.3647059],
         "800": [0.6156863, 0.09019608, 0.3019608],
         "900": [0.5137255, 0.09411765, 0.2627451],
-        "950": [0.3137255, 0.02745098, 0.14117648]
+        "950": [0.3137255, 0.02745098, 0.14117648],
     },
-    "PURPLE": {
+    PURPLE: {
         "50": [0.98039216, 0.9607843, 1.0],
         "100": [0.9529412, 0.9098039, 1.0],
         "200": [0.9137255, 0.8352941, 1.0],
@@ -209,9 +284,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.49411765, 0.13333334, 0.80784315],
         "800": [0.41960785, 0.12941177, 0.65882355],
         "900": [0.34509805, 0.10980392, 0.5294118],
-        "950": [0.23137255, 0.02745098, 0.39215687]
+        "950": [0.23137255, 0.02745098, 0.39215687],
     },
-    "RED": {
+    RED: {
         "50": [0.99607843, 0.9490196, 0.9490196],
         "100": [0.99607843, 0.8862745, 0.8862745],
         "200": [0.99607843, 0.7921569, 0.7921569],
@@ -222,9 +297,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.7254902, 0.10980392, 0.10980392],
         "800": [0.6, 0.105882354, 0.105882354],
         "900": [0.49803922, 0.11372549, 0.11372549],
-        "950": [0.27058825, 0.039215688, 0.039215688]
+        "950": [0.27058825, 0.039215688, 0.039215688],
     },
-    "ROSE": {
+    ROSE: {
         "50": [1.0, 0.94509804, 0.9490196],
         "100": [1.0, 0.89411765, 0.9019608],
         "200": [0.99607843, 0.8039216, 0.827451],
@@ -235,9 +310,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.74509805, 0.07058824, 0.23529412],
         "800": [0.62352943, 0.07058824, 0.22352941],
         "900": [0.53333336, 0.07450981, 0.21568628],
-        "950": [0.29803923, 0.019607844, 0.09803922]
+        "950": [0.29803923, 0.019607844, 0.09803922],
     },
-    "SKY": {
+    SKY: {
         "50": [0.9411765, 0.9764706, 1.0],
         "100": [0.8784314, 0.9490196, 0.99607843],
         "200": [0.7294118, 0.9019608, 0.99215686],
@@ -248,9 +323,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.011764706, 0.4117647, 0.6313726],
         "800": [0.02745098, 0.34901962, 0.52156866],
         "900": [0.047058824, 0.2901961, 0.43137255],
-        "950": [0.03137255, 0.18431373, 0.28627452]
+        "950": [0.03137255, 0.18431373, 0.28627452],
     },
-    "SLATE": {
+    SLATE: {
         "50": [0.972549, 0.98039216, 0.9882353],
         "100": [0.94509804, 0.9607843, 0.9764706],
         "200": [0.8862745, 0.9098039, 0.9411765],
@@ -261,9 +336,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.2, 0.25490198, 0.33333334],
         "800": [0.11764706, 0.16078432, 0.23137255],
         "900": [0.05882353, 0.09019608, 0.16470589],
-        "950": [0.007843138, 0.023529412, 0.09019608]
+        "950": [0.007843138, 0.023529412, 0.09019608],
     },
-    "STONE": {
+    STONE: {
         "50": [0.98039216, 0.98039216, 0.9764706],
         "100": [0.9607843, 0.9607843, 0.95686275],
         "200": [0.90588236, 0.8980392, 0.89411765],
@@ -274,9 +349,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.26666668, 0.2509804, 0.23529412],
         "800": [0.16078432, 0.14509805, 0.14117648],
         "900": [0.10980392, 0.09803922, 0.09019608],
-        "950": [0.047058824, 0.039215688, 0.03529412]
+        "950": [0.047058824, 0.039215688, 0.03529412],
     },
-    "TEAL": {
+    TEAL: {
         "50": [0.9411765, 0.99215686, 0.98039216],
         "100": [0.8, 0.9843137, 0.94509804],
         "200": [0.6, 0.9647059, 0.89411765],
@@ -287,9 +362,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.05882353, 0.4627451, 0.43137255],
         "800": [0.06666667, 0.36862746, 0.34901962],
         "900": [0.07450981, 0.30588236, 0.2901961],
-        "950": [0.015686275, 0.18431373, 0.18039216]
+        "950": [0.015686275, 0.18431373, 0.18039216],
     },
-    "VIOLET": {
+    VIOLET: {
         "50": [0.9607843, 0.9529412, 1.0],
         "100": [0.92941177, 0.9137255, 0.99607843],
         "200": [0.8666667, 0.8392157, 0.99607843],
@@ -300,9 +375,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.42745098, 0.15686275, 0.8509804],
         "800": [0.35686275, 0.12941177, 0.7137255],
         "900": [0.29803923, 0.11372549, 0.58431375],
-        "950": [0.18039216, 0.0627451, 0.39607844]
+        "950": [0.18039216, 0.0627451, 0.39607844],
     },
-    "YELLOW": {
+    YELLOW: {
         "50": [0.99607843, 0.9882353, 0.9098039],
         "100": [0.99607843, 0.9764706, 0.7647059],
         "200": [0.99607843, 0.9411765, 0.5411765],
@@ -313,9 +388,9 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.6313726, 0.38431373, 0.02745098],
         "800": [0.52156866, 0.3019608, 0.05490196],
         "900": [0.44313726, 0.24705882, 0.07058824],
-        "950": [0.25882354, 0.1254902, 0.023529412]
+        "950": [0.25882354, 0.1254902, 0.023529412],
     },
-    "ZINC": {
+    ZINC: {
         "50": [0.98039216, 0.98039216, 0.98039216],
         "100": [0.95686275, 0.95686275, 0.9607843],
         "200": [0.89411765, 0.89411765, 0.90588236],
@@ -326,39 +401,6 @@ const TAILWIND_COLORS: Record<string, Record<string, [number, number, number]>> 
         "700": [0.24705882, 0.24705882, 0.27450982],
         "800": [0.15294118, 0.15294118, 0.16470589],
         "900": [0.09411765, 0.09411765, 0.105882354],
-        "950": [0.03529412, 0.03529412, 0.043137256]
+        "950": [0.03529412, 0.03529412, 0.043137256],
     },
 };
-
-export function getTailWindRegExps(): RegExp[] {
-    const names = TAILWIND_COLOR_NAMES;
-    const nameRegexPart = names.join("|");
-
-    const steps = TAILWIND_STEP_NAMES;
-    const stepsRegexPart = steps.join("|");
-
-    const nameSpacePart = `${nameSpaceBaseRegExp}(?:palettes::)?(?:tailwind::)?`;
-
-    const regexString = `${nameSpacePart}(${nameRegexPart})_(${stepsRegexPart})`;
-    const regex = new RegExp(regexString, "g");
-
-    return [regex];
-}
-
-export function extractTailWindColor(match: RegExpExecArray): ExtractedColor | undefined {
-    const name = match[1];
-    const step = match[2];
-    const values = TAILWIND_COLORS[name][step];
-
-    const extractedColor: ExtractedColor = {
-        colorSpace: ColorSpace.Srgb,
-        coordinate: {
-            first: values[0],
-            second: values[1],
-            third: values[2],
-        },
-        alpha: 1.0,
-
-    };
-    return extractedColor;
-}

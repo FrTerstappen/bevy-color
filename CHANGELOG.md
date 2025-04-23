@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing
 
+## [0.3.0] - 2025-05-01
+
+### Added
+
+- Shows diagnostics for values outside of the allowed range
+
+### Changed
+
+- Replacing a color now tries to use the same color space. Tailwind and CSS colors always get replaced by srgb.
+- Update example workspace to bevy 0.16
+
 ## [0.2.0] - 2025-04-21
 
 ### Added

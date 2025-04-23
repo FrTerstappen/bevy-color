@@ -2,7 +2,7 @@
 
 `Bevy Color` is an extension for VS Code to preview colors declared in rust files using the [Bevy](https://bevyengine.org/) game engine. It also allows adjusting them with the integrated color picker.
 
-Currently tested with version `0.15.3` of `Bevy`.
+Currently tested with version `0.16.0` of `Bevy`.
 
 ## Features
 
@@ -15,10 +15,17 @@ This currently works for colors declared with `Color::` as well as colors from t
 
 ### Color picker
 
-Clicking on the color preview opens a color picker.
-This replaces the existing color definition with `Color::srgb` or `Color::srgba` if it has a alpha value less than `1.0`.
+Clicking on the color preview or hovering over the detected color definition opens a color picker.
+Selecting a color replaces the original color with the new color.
+If possible the same color space is used for the new color.
 
 ![Color picker](image/ColorPicker.png)
+
+### Color value range
+
+Values outside of the expected range for a color space are marked with a diagnostic.
+
+![Color value range](image/ColorValueRange.png)
 
 ## Requirements
 
