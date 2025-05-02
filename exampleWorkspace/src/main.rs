@@ -70,6 +70,17 @@ fn no_highlight() {
     let _test = "SOMERED";
     let _test = "REDSTRING";
     let _test = "SOMEREDSTRING";
+
+    // Comment taken from https://github.com/bevyengine/bevy/blob/main/crates/bevy_pbr/src/pbr_material.rs
+    //
+    // The default emissive color is [`LinearRgba::BLACK`], which doesn't add anything to the material color.
+    //
+    // To increase emissive strength, channel values for `emissive`
+    // colors can exceed `1.0`. For instance, a `base_color` of
+    // `LinearRgba::rgb(1.0, 0.0, 0.0)` represents the brightest
+    // red for objects that reflect light, but an emissive color
+    // like `LinearRgba::rgb(1000.0, 0.0, 0.0)` can be used to create
+    // intensely bright red emissive effects.
 }
 
 fn name_space() {
