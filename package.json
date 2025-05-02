@@ -1,7 +1,7 @@
 {
     "name": "bevy-color",
     "displayName": "Bevy Color",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Visualize colors inline in rust code using bevy",
     "categories": [
         "Other"
