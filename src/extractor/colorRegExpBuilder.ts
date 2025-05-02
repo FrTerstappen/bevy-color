@@ -118,8 +118,8 @@ export class ColorRegExpBuilder {
         bevyColor: boolean
     ) {
         const whiteSpacesNoNewLine = String.raw`[^\S\r\n]*`;
-        const invalidPrefix = `(?<!["_\\w]${whiteSpacesNoNewLine})`;
-        const invalidPostfix = `(?!${whiteSpacesNoNewLine}["_:\\w])`;
+        const invalidPrefix = `(?<![\`'"_\\w]${whiteSpacesNoNewLine})`;
+        const invalidPostfix = `(?!${whiteSpacesNoNewLine}[\`'"_:\\w])`;
 
         const nameSpaceCapture = this.buildNameSpaceCapture(
             modulePathParts,
